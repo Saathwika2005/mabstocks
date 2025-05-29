@@ -18,6 +18,15 @@ const STOCKS_LIST = [
   "INTC",
   "CSCO",
   "ORCL",
+  "BAC",
+  "WMT",
+  "PG",
+  "MA",
+  "XOM",
+  "KO",
+  "PEP",
+  "CVX",
+  "MRK",
 ];
 
 function fetchIntradayReturn(symbol) {
@@ -64,14 +73,11 @@ function epsilonGreedy(arms, epsilon, plays, rewards) {
 
 // Thompson Sampling for Gaussian rewards (approx)
 function thompsonSampling(arms, plays, rewards) {
-  // Use normal distribution with mean and variance = 1/play count
-  // For simplicity, use Beta approximation here with successes = rewards, failures = plays - rewards
   let maxSample = -Infinity;
   let bestArm = 0;
   for (let i = 0; i < arms; i++) {
     const alpha = rewards[i] + 1;
     const beta = plays[i] - rewards[i] + 1;
-    // Beta distribution sample (approximate using Math.random(), replace with better sampler if needed)
     const sample = betaSample(alpha, beta);
     if (sample > maxSample) {
       maxSample = sample;
@@ -81,11 +87,10 @@ function thompsonSampling(arms, plays, rewards) {
   return bestArm;
 }
 
-// Simple Beta sampler using the algorithm by Johnk's method (for demo purposes)
+// Simple Beta sampler using Johnk's method (demo)
 function betaSample(alpha, beta) {
   const gammaSample = (shape) => {
     if (shape < 1) {
-      // Use Johnk's algorithm for alpha < 1
       let done = false;
       let x, y;
       while (!done) {
@@ -93,15 +98,18 @@ function betaSample(alpha, beta) {
         y = Math.pow(Math.random(), 1 / (1 - shape));
         if (x + y <= 1) done = true;
       }
-      return -Math.log(Math.random()) * x / (x + y);
+      return (-Math.log(Math.random()) * x) / (x + y);
     } else {
-      // Use Marsaglia and Tsang's method for alpha >= 1
       const d = shape - 1 / 3;
       const c = 1 / Math.sqrt(9 * d);
       while (true) {
         let x = normalSample();
         let v = Math.pow(1 + c * x, 3);
-        if (v > 0 && Math.log(Math.random()) < 0.5 * x * x + d - d * v + d * Math.log(v)) {
+        if (
+          v > 0 &&
+          Math.log(Math.random()) <
+            0.5 * x * x + d - d * v + d * Math.log(v)
+        ) {
           return d * v;
         }
       }
@@ -109,10 +117,10 @@ function betaSample(alpha, beta) {
   };
 
   const normalSample = () => {
-    // Box-Muller transform
-    let u = 0, v = 0;
-    while(u === 0) u = Math.random();
-    while(v === 0) v = Math.random();
+    let u = 0,
+      v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
     return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
   };
 
@@ -142,12 +150,27 @@ function ucb1(arms, plays, rewards, totalPlays) {
 
 export default function App() {
   const [selectedStocks, setSelectedStocks] = useState([]);
-  const [plays, setPlays] = useState(Array(10).fill(0));
-  const [rewards, setRewards] = useState(Array(10).fill(0));
+  const [plays, setPlays] = useState([]);
+  const [rewards, setRewards] = useState([]);
   const [logs, setLogs] = useState([]);
   const [algorithm, setAlgorithm] = useState("epsilon");
   const [epsilon, setEpsilon] = useState(0.1);
-  const [isRunning, setIsRunning] = useState(false);
+  const [finalResult, setFinalResult] = useState(null);
+
+  // Reset plays and rewards whenever selectedStocks changes to exactly 10
+  useEffect(() => {
+    if (selectedStocks.length === 10) {
+      setPlays(Array(10).fill(0));
+      setRewards(Array(10).fill(0));
+      setLogs([]);
+      setFinalResult(null);
+    } else {
+      setPlays([]);
+      setRewards([]);
+      setLogs([]);
+      setFinalResult(null);
+    }
+  }, [selectedStocks]);
 
   const toggleStock = (symbol) => {
     if (selectedStocks.includes(symbol)) {
@@ -168,13 +191,13 @@ export default function App() {
 
     switch (algorithm) {
       case "epsilon":
-        chosenIndex = epsilonGreedy(10, epsilon, plays, rewards);
+        chosenIndex = epsilonGreedy(selectedStocks.length, epsilon, plays, rewards);
         break;
       case "thompson":
-        chosenIndex = thompsonSampling(10, plays, rewards);
+        chosenIndex = thompsonSampling(selectedStocks.length, plays, rewards);
         break;
       case "ucb":
-        chosenIndex = ucb1(10, plays, rewards, totalPlays);
+        chosenIndex = ucb1(selectedStocks.length, plays, rewards, totalPlays);
         break;
       default:
         chosenIndex = 0;
@@ -182,7 +205,6 @@ export default function App() {
 
     const stock = selectedStocks[chosenIndex];
     const reward = await fetchIntradayReturn(stock);
-
 
     // Update plays and rewards
     const newPlays = [...plays];
@@ -202,96 +224,256 @@ export default function App() {
       },
       ...logs,
     ]);
+
+    setFinalResult(null); // Reset final result after each step
   };
 
   const reset = () => {
-    setPlays(Array(10).fill(0));
-    setRewards(Array(10).fill(0));
+    setPlays(Array(selectedStocks.length).fill(0));
+    setRewards(Array(selectedStocks.length).fill(0));
     setLogs([]);
+    setFinalResult(null);
+  };
+
+  const showFinalResult = () => {
+    if (plays.length === 0) {
+      alert("No data available. Run some steps first.");
+      return;
+    }
+    let bestIndex = 0;
+    let bestAvgReward = -Infinity;
+    for (let i = 0; i < plays.length; i++) {
+      const avgReward = plays[i] ? rewards[i] / plays[i] : -Infinity;
+      if (avgReward > bestAvgReward) {
+        bestAvgReward = avgReward;
+        bestIndex = i;
+      }
+    }
+    setFinalResult({
+      stock: selectedStocks[bestIndex],
+      avgReward: bestAvgReward,
+    });
   };
 
   return (
-    <div style={{ maxWidth: 700, margin: "auto", padding: 20, fontFamily: "Arial, sans-serif" }}>
-      <h1>Stock Selector using Multi-Armed Bandit</h1>
+    <div
+      style={{
+        maxWidth: 750,
+        margin: "auto",
+        padding: 30,
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        backgroundColor: "#f0faf9",
+        borderRadius: 12,
+        boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+        color: "#064635",
+      }}
+    >
+      <h1 style={{ textAlign: "center", marginBottom: 30, color: "#0b6659" }}>
+        Stock Selector using Multi-Armed Bandit
+      </h1>
 
-      <h3>Select exactly 10 stocks:</h3>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+      <h3 style={{ marginBottom: 10, color: "#0b6659" }}>Select exactly 10 stocks:</h3>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
         {STOCKS_LIST.map((stock) => (
           <button
             key={stock}
             onClick={() => toggleStock(stock)}
             style={{
-              padding: "8px 12px",
-              borderRadius: 5,
-              border: selectedStocks.includes(stock) ? "2px solid #4caf50" : "1px solid #ccc",
-              backgroundColor: selectedStocks.includes(stock) ? "#d4edda" : "#f8f9fa",
+              padding: "8px 14px",
+              borderRadius: 20,
+              border: selectedStocks.includes(stock)
+                ? "2px solid #42b883"
+                : "2px solid #a3d9ca",
+              backgroundColor: selectedStocks.includes(stock)
+                ? "#d2f0e4"
+                : "#e6f4f1",
+              color: selectedStocks.includes(stock) ? "#064635" : "#4a6564",
               cursor: "pointer",
+              fontWeight: "600",
+              minWidth: 55,
+              textAlign: "center",
+              userSelect: "none",
+              transition: "all 0.3s ease",
             }}
-            disabled={!selectedStocks.includes(stock) && selectedStocks.length >= 10}
           >
             {stock}
           </button>
         ))}
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <label>
-          Choose algorithm:{" "}
-          <select value={algorithm} onChange={(e) => setAlgorithm(e.target.value)}>
-            <option value="epsilon">Epsilon-Greedy</option>
-            <option value="thompson">Thompson Sampling</option>
-            <option value="ucb">UCB1</option>
-          </select>
+      <div style={{ marginBottom: 20 }}>
+        <label
+          htmlFor="algorithm-select"
+          style={{ fontWeight: "bold", marginRight: 10, color: "#0b6659" }}
+        >
+          Algorithm:
         </label>
+        <select
+          id="algorithm-select"
+          value={algorithm}
+          onChange={(e) => setAlgorithm(e.target.value)}
+          style={{
+            padding: "6px 12px",
+            borderRadius: 8,
+            border: "1.5px solid #42b883",
+            fontSize: 16,
+            color: "#064635",
+            backgroundColor: "#e6f4f1",
+            cursor: "pointer",
+          }}
+        >
+          <option value="epsilon">Epsilon-Greedy</option>
+          <option value="thompson">Thompson Sampling</option>
+          <option value="ucb">UCB1</option>
+        </select>
+
+        {algorithm === "epsilon" && (
+          <input
+            type="number"
+            min={0}
+            max={1}
+            step={0.01}
+            value={epsilon}
+            onChange={(e) => setEpsilon(parseFloat(e.target.value))}
+            style={{
+              marginLeft: 15,
+              width: 70,
+              padding: "6px 8px",
+              borderRadius: 8,
+              border: "1.5px solid #42b883",
+              fontSize: 16,
+              color: "#064635",
+              backgroundColor: "#e6f4f1",
+            }}
+            title="Epsilon value for epsilon-greedy algorithm"
+          />
+        )}
       </div>
 
-      {algorithm === "epsilon" && (
-        <div style={{ marginTop: 10 }}>
-          <label>
-            Epsilon (exploration rate):{" "}
-            <input
-              type="number"
-              min="0"
-              max="1"
-              step="0.01"
-              value={epsilon}
-              onChange={(e) => setEpsilon(parseFloat(e.target.value))}
-            />
-          </label>
-        </div>
-      )}
-
-      <div style={{ marginTop: 20 }}>
+      <div>
         <button
           onClick={runStep}
-          disabled={selectedStocks.length !== 10 || isRunning}
-          style={{ padding: "10px 20px", fontSize: 16, cursor: "pointer" }}
+          disabled={selectedStocks.length !== 10}
+          style={{
+            padding: "12px 25px",
+            backgroundColor: selectedStocks.length === 10 ? "#42b883" : "#9bd1bc",
+            color: "#fff",
+            border: "none",
+            borderRadius: 25,
+            cursor: selectedStocks.length === 10 ? "pointer" : "not-allowed",
+            fontSize: 16,
+            fontWeight: "bold",
+            marginRight: 15,
+            transition: "background-color 0.3s ease",
+          }}
         >
-          Run One Step
+          Run Step
         </button>
 
         <button
           onClick={reset}
-          style={{ padding: "10px 20px", fontSize: 16, marginLeft: 10, cursor: "pointer" }}
+          disabled={plays.length === 0}
+          style={{
+            padding: "12px 25px",
+            backgroundColor: plays.length > 0 ? "#2c7a7b" : "#8fc1c1",
+            color: "#fff",
+            border: "none",
+            borderRadius: 25,
+            cursor: plays.length > 0 ? "pointer" : "not-allowed",
+            fontSize: 16,
+            fontWeight: "bold",
+            marginRight: 15,
+            transition: "background-color 0.3s ease",
+          }}
         >
           Reset
         </button>
+
+        <button
+          onClick={showFinalResult}
+          disabled={plays.length === 0}
+          style={{
+            padding: "12px 25px",
+            backgroundColor: plays.length > 0 ? "#319795" : "#8fc1c1",
+            color: "#fff",
+            border: "none",
+            borderRadius: 25,
+            cursor: plays.length > 0 ? "pointer" : "not-allowed",
+            fontSize: 16,
+            fontWeight: "bold",
+            transition: "background-color 0.3s ease",
+          }}
+        >
+          Show Final Result
+        </button>
       </div>
 
-      <h3 style={{ marginTop: 30 }}>Logs:</h3>
-      <div style={{ maxHeight: 300, overflowY: "auto", border: "1px solid #ccc", padding: 10 }}>
-        {logs.length === 0 && <p>No runs yet.</p>}
-        {logs.map(({ step, chosenStock, reward, algorithm }, i) => (
-          <div
-            key={i}
-            style={{
-              borderBottom: "1px solid #eee",
-              padding: "8px 0",
-            }}
-          >
-            <strong>Step {step}:</strong> Chose <strong>{chosenStock}</strong> with reward <strong>{reward}</strong> using <em>{algorithm}</em>.
-          </div>
-        ))}
+      {finalResult && (
+        <div
+          style={{
+            marginTop: 30,
+            padding: 20,
+            backgroundColor: "#d1e7dd",
+            borderRadius: 12,
+            fontWeight: "bold",
+            fontSize: 18,
+            color: "#064635",
+            textAlign: "center",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+          }}
+        >
+          Best Stock:{" "}
+          <span style={{ color: "#2f855a", fontSize: 20 }}>{finalResult.stock}</span> with
+          Average Reward:{" "}
+          <span style={{ color: "#276749", fontSize: 20 }}>
+            {finalResult.avgReward.toFixed(2)}%
+          </span>
+        </div>
+      )}
+
+      <div style={{ marginTop: 40, maxHeight: 300, overflowY: "auto" }}>
+        <h3 style={{ color: "#0b6659" }}>Logs:</h3>
+        {logs.length === 0 && (
+          <p style={{ color: "#375a52", fontStyle: "italic" }}>No steps run yet.</p>
+        )}
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: 14,
+            color: "#064635",
+          }}
+        >
+          <thead>
+            <tr style={{ backgroundColor: "#a3d9ca" }}>
+              <th style={{ padding: 10, borderBottom: "2px solid #42b883" }}>Step</th>
+              <th style={{ padding: 10, borderBottom: "2px solid #42b883" }}>
+                Chosen Stock
+              </th>
+              <th style={{ padding: 10, borderBottom: "2px solid #42b883" }}>Reward</th>
+              <th style={{ padding: 10, borderBottom: "2px solid #42b883" }}>
+                Algorithm
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map(({ step, chosenStock, reward, algorithm }, idx) => (
+              <tr
+                key={idx}
+                style={{
+                  backgroundColor: idx % 2 === 0 ? "#e6f4f1" : "#d2f0e4",
+                }}
+              >
+                <td style={{ padding: 8, textAlign: "center" }}>{step}</td>
+                <td style={{ padding: 8, textAlign: "center", fontWeight: "600" }}>
+                  {chosenStock}
+                </td>
+                <td style={{ padding: 8, textAlign: "center" }}>{reward}</td>
+                <td style={{ padding: 8, textAlign: "center" }}>{algorithm}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
