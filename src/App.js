@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import './App.css'; // We'll update this CSS file
+import './App.css'; 
 
-const API_KEY = "WUMOY4I2MWJSGM68"; // Replace with your Alpha Vantage API key
+const API_KEY = "WUMOY4I2MWJSGM68"; 
 
 const STOCKS_LIST = [
   "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA", "JPM",
@@ -16,7 +16,6 @@ const ALGORITHM_OPTIONS = [
   { value: "epsilon", label: "Conservative Investing " },
 ];
 
-// Helper to add a delay to avoid hitting API rate limits too quickly
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
 function fetchIntradayReturn(symbol) {
@@ -218,7 +217,7 @@ export default function App() {
 
     const stock = selectedStocks[choice];
     const reward = await fetchIntradayReturn(stock);
-    await delay(1500); // Add a delay to respect API limits and show loading feedback
+    await delay(1500); 
 
     const newPlays = [...plays];
     const newRewards = [...rewards];
@@ -411,10 +410,10 @@ export default function App() {
           ) : historicalData.length > 0 ? (
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={historicalData} margin={{ top: 10, right: 30, left: 20, bottom: 80 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#555" /> {/* Darker grid lines for dark theme */}
+                <CartesianGrid strokeDasharray="3 3" stroke="#555" /> {}
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fill: '#bbb', fontSize: 12 }} // Lighter tick labels
+                  tick={{ fill: '#bbb', fontSize: 12 }} 
                   angle={-45}
                   textAnchor="end"
                   height={80}
@@ -428,11 +427,10 @@ export default function App() {
                   formatter={(value) => [`$${value.toFixed(2)}`, 'Price']}
                   labelFormatter={(label) => `Date: ${label}`}
                   contentStyle={{ 
-                    backgroundColor: 'rgba(40,40,40,0.9)', // Darker tooltip background
-                    border: '1px solid #666', // Lighter tooltip border
+                    border: '1px solid #666', 
                     borderRadius: '5px' 
                   }}
-                  labelStyle={{ color: '#eee' }} // Lighter tooltip label
+                  labelStyle={{ color: '#eee' }} 
                 />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Line 
