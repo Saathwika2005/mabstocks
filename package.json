@@ -10,7 +10,9 @@
     "firebase": "^11.8.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-scripts": "^3.0.1",
+    "react-router-dom": "^7.6.3",
+    "react-scripts": "^5.0.1",
+    "recharts": "^3.0.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

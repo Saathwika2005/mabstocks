@@ -1,0 +1,97 @@
+/* 🌈 Page background with pastel gradient */
+.signup-page {
+  height: 100vh;
+  background: linear-gradient(135deg, #fbeaff, #e0f7ff); /* 💡 pastel gradient */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* 🧊 Card-like container */
+.signup-card {
+  background: white;
+  padding: 2.5rem 3rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 50px rgba(16, 15, 15, 0.1);
+  max-width: 400px;
+  width: 90%;
+}
+
+/* ✨ Title + subtitle */
+.signup-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #88a5cd;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.signup-subtitle {
+  color: #03102d;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* 📝 Form layout */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.signup-form label {
+  font-size: 0.9rem;
+  color: #363c45;
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  width: 100%;
+  max-width: 300px;
+}
+
+.signup-form input[type="email"],
+.signup-form input[type="password"] {
+  background-color: #f0f1fa;
+  color: #212a3f;  
+  margin-top: 0.35rem;
+  padding: 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.6rem;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1rem;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signup-form input:focus {
+  outline: none;
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.3); /* 💜 pastel focus ring */
+}
+
+/* ✅ Button styling */
+.btn-primary {
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #a78bfa, #7dd3fc); 
+  color: white;
+  border: none;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: -0.5rem;
+}

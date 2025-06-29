@@ -171,6 +171,9 @@ export default function App() {
   const [historicalData, setHistoricalData] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [runningStep, setRunningStep] = useState(false);
+  const [bestHistory, setBestHistory] = useState([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
 
   useEffect(() => {
     if (selectedStocks.length === 10) {
@@ -242,33 +245,44 @@ export default function App() {
     ]);
     setRunningStep(false);
   };
-
   const showFinalResults = () => {
-    if (!selectedAlgorithm) {
-      alert("Please select an algorithm first.");
-      return;
-    }
+  if (!selectedAlgorithm) {
+    alert("Please select an algorithm first.");
+    return;
+  }
 
-    let best = 0;
-    let bestAvg = -Infinity;
-    for (let i = 0; i < 10; i++) {
-      const avg = plays[i] ? rewards[i] / plays[i] : -Infinity;
-      if (avg > bestAvg) {
-        best = i;
-        bestAvg = avg;
-      }
+  let best = 0;
+  let bestAvg = -Infinity;
+  for (let i = 0; i < 10; i++) {
+    const avg = plays[i] ? rewards[i] / plays[i] : -Infinity;
+    if (avg > bestAvg) {
+      best = i;
+      bestAvg = avg;
     }
+  }
 
-    const algorithmLabel = ALGORITHM_OPTIONS.find(opt => opt.value === selectedAlgorithm)?.label || selectedAlgorithm;
-    
-    setFinalResults({
-      algorithm: algorithmLabel,
-      stock: selectedStocks[best],
-      avgReward: bestAvg.toFixed(2) + "%",
-      bestStockIndex: best,
-    });
+  const algorithmLabel = ALGORITHM_OPTIONS.find(opt => opt.value === selectedAlgorithm)?.label || selectedAlgorithm;
+
+  const result = {
+    algorithm: algorithmLabel,
+    stock: selectedStocks[best],
+    avgReward: bestAvg.toFixed(2) + "%",
+    bestStockIndex: best,
   };
 
+  setFinalResults(result);
+
+  // ✅ Add this to update the history panel
+  setBestHistory(prev => [
+    {
+      stock: selectedStocks[best],
+      algo: algorithmLabel,
+      avg: result.avgReward,
+      ts: new Date().toLocaleString(),
+    },
+    ...prev,
+  ]);
+};
   const viewHistory = async () => {
     if (!finalResults.stock) {
       alert("Please show final results first to identify the best stock.");
@@ -316,10 +330,26 @@ export default function App() {
   };
 
   return (
-    // The 'dark-theme' class is now always applied
-    <div className="app-container dark-theme">
+  <>
+    <header className="navbar">
+      <div className="nav-left">MABStocks</div>
+
+      <div className="nav-right">
+        {/* You can later link this to a real history page */}
+        <span className="nav-link" onClick={() => setIsHistoryOpen(true)}>
+          History
+        </span>
+        {/* Placeholder Avatar */}
+        <div className="avatar" />
+      </div>
+    </header>
+    
+    <div className="app-container">
+      {/* Heading */}
       <h1 className="app-title">Multi-Armed Bandit Stock Selector</h1>
-      
+
+      {/* ▼▼▼  EVERYTHING BELOW IS *EXACTLY* WHAT YOU ALREADY HAD ▼▼▼ */}
+      {/* Select Stocks */}
       <div className="section-card">
         <h2>Select exactly 10 Stocks:</h2>
         <div className="stocks-grid">
@@ -327,8 +357,12 @@ export default function App() {
             <button
               key={stock}
               onClick={() => toggleStock(stock)}
-              className={`stock-button ${selectedStocks.includes(stock) ? "selected" : ""}`}
-              disabled={selectedStocks.length >= 10 && !selectedStocks.includes(stock)}
+              className={`stock-button ${
+                selectedStocks.includes(stock) ? "selected" : ""
+              }`}
+              disabled={
+                selectedStocks.length >= 10 && !selectedStocks.includes(stock)
+              }
             >
               {stock}
             </button>
@@ -336,6 +370,7 @@ export default function App() {
         </div>
       </div>
 
+      {/* Select Algorithm */}
       <div className="section-card">
         <h2>Select Algorithm:</h2>
         <div className="algorithm-options">
@@ -357,7 +392,7 @@ export default function App() {
         {selectedAlgorithm === "epsilon" && (
           <div className="epsilon-slider">
             <label>
-              How much would you prefer to explore (0-1): 
+              How much would you prefer to explore (0–1):
               <input
                 type="range"
                 min="0"
@@ -373,100 +408,163 @@ export default function App() {
         )}
       </div>
 
+      {/* Action Buttons */}
       <div className="action-buttons">
-        <button 
-          onClick={runStep} 
-          disabled={selectedStocks.length !== 10 || !selectedAlgorithm || runningStep}
+        <button
+          onClick={runStep}
+          disabled={
+            selectedStocks.length !== 10 || !selectedAlgorithm || runningStep
+          }
           className="btn primary"
         >
           {runningStep ? "Running..." : "Run Step"}
         </button>
+
         <button onClick={showFinalResults} className="btn secondary">
           Show Final Results
         </button>
+
         {finalResults.stock && (
-          <button onClick={viewHistory} disabled={loadingHistory} className="btn tertiary">
+          <button
+            onClick={viewHistory}
+            disabled={loadingHistory}
+            className="btn tertiary"
+          >
             {loadingHistory ? "Loading History..." : "View History"}
           </button>
         )}
+
         <button onClick={reset} className="btn reset">
           Reset All
         </button>
       </div>
 
+      {/* Final Results */}
       {Object.keys(finalResults).length > 0 && (
         <div className="section-card final-results-card">
           <h2>Final Best Stock:</h2>
           <p>
-            For {finalResults.algorithm}, the recommended stock is {finalResults.stock}, with an average return of {finalResults.avgReward}.
+            For {finalResults.algorithm}, the recommended stock is{" "}
+            {finalResults.stock}, with an average return of{" "}
+            {finalResults.avgReward}.
           </p>
         </div>
       )}
 
+      {/* History Chart */}
       {showHistory && (
         <div className="section-card history-chart-card">
           <h2>{getHistoryTitle()}</h2>
           {loadingHistory ? (
-            <p className="loading-message">Fetching historical data for {finalResults.stock}...</p>
+            <p className="loading-message">
+              Fetching historical data for {finalResults.stock}...
+            </p>
           ) : historicalData.length > 0 ? (
             <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={historicalData} margin={{ top: 10, right: 30, left: 20, bottom: 80 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#555" /> {/* Darker grid lines for dark theme */}
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fill: '#bbb', fontSize: 12 }} // Lighter tick labels
+              <LineChart
+                data={historicalData}
+                margin={{ top: 10, right: 30, left: 20, bottom: 80 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#d4d8e2" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: "#64748b", fontSize: 12 }}
                   angle={-45}
                   textAnchor="end"
                   height={80}
                   interval="preserveStartEnd"
                 />
-                <YAxis 
-                  tick={{ fill: '#bbb', fontSize: 12 }} // Lighter tick labels
-                  label={{ value: 'Price ($)', angle: -90, position: 'insideLeft', fill: '#bbb' }} // Lighter label
-                />
-                <Tooltip 
-                  formatter={(value) => [`$${value.toFixed(2)}`, 'Price']}
-                  labelFormatter={(label) => `Date: ${label}`}
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(40,40,40,0.9)', // Darker tooltip background
-                    border: '1px solid #666', // Lighter tooltip border
-                    borderRadius: '5px' 
+                <YAxis
+                  tick={{ fill: "#64748b", fontSize: 12 }}
+                  label={{
+                    value: "Price ($)",
+                    angle: -90,
+                    position: "insideLeft",
+                    fill: "#64748b",
                   }}
-                  labelStyle={{ color: '#eee' }} // Lighter tooltip label
                 />
-                <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                <Line 
-                  type="monotone" 
-                  dataKey="price" 
-                  stroke="#4CAF50" 
+                <Tooltip
+                  formatter={(v) => [`$${v.toFixed(2)}`, "Price"]}
+                  labelFormatter={(l) => `Date: ${l}`}
+                  contentStyle={{
+                    backgroundColor: "#fff",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                  }}
+                  labelStyle={{ color: "#1e293b" }}
+                />
+                <Legend wrapperStyle={{ paddingTop: "20px" }} />
+                <Line
+                  type="monotone"
+                  dataKey="price"
+                  stroke="#3b82f6"
                   strokeWidth={2}
-                  dot={{ fill: '#4CAF50', strokeWidth: 2, r: 3 }}
-                  activeDot={{ r: 6, strokeWidth: 2, fill: '#FFC107' }}
+                  dot={{ fill: "#3b82f6", r: 3 }}
+                  activeDot={{ r: 6, fill: "#f59e0b" }}
                   name="Stock Price"
                 />
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p className="no-data-message">No historical data available or an error occurred while loading. Please check the console for details or try again later.</p>
+            <p className="no-data-message">
+              No historical data available or an error occurred while loading.
+              Please try again later.
+            </p>
           )}
         </div>
       )}
 
+      {/* Action Logs */}
       <div className="section-card logs-card">
         <h2>Action Logs:</h2>
         <ul className="logs-list">
           {logs.length > 0 ? (
             logs.map((log, idx) => (
               <li key={idx} className="log-item">
-                <span className="log-step">Step {log.step}</span> ({log.algorithmLabel}):{" "}
-                Selected {log.stock} → {log.reward.toFixed(2)}% return.
+                <span className="log-step">Step {log.step}</span>{" "}
+                ({log.algorithmLabel}): Selected {log.stock} →{" "}
+                {log.reward.toFixed(2)}% return.
               </li>
             ))
           ) : (
-            <li className="no-data-message">No steps run yet. Select stocks and click "Run Step"!</li>
+            <li className="no-data-message">
+              No steps run yet. Select stocks and click “Run Step”!
+            </li>
           )}
         </ul>
       </div>
+       {/* ───── SLIDE‑IN HISTORY PANEL ───── */}
+      {isHistoryOpen && (
+      <>
+        <div
+          className="side-panel-overlay"
+          onClick={() => setIsHistoryOpen(false)}
+        />
+        <aside className="side-panel open">
+          <h3>Recommendation History</h3>
+
+          {bestHistory.length > 0 ? (
+            bestHistory.map((h, idx) => (
+              <div key={idx} className="history-item">
+                <strong>{h.stock}</strong> ({h.algo}) <br />
+                Avg&nbsp;Return: {h.avg} <br />
+                <small>{h.ts}</small>
+              </div>
+            ))
+          ) : (
+            <p>No recommendations yet.</p>
+          )}
+
+          <button
+            className="close-btn"
+            onClick={() => setIsHistoryOpen(false)}
+          >
+            Close
+          </button>
+        </aside>
+      </>
+    )}
     </div>
-  );
+  </>
+);
 }

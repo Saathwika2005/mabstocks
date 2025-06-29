@@ -1,50 +1,126 @@
-/* General Styling for Dark Theme */
-body {
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  background-color: #282c34; /* Darker background */
-  color: #e0e0e0; /* Light text */
-  line-height: 1.6;
+/* =========================================================
+   GLOBALS – LIGHT / PASTEL THEME
+   ========================================================= */
+:root {
+  /* 🎨 MAIN PALETTE — tweak these to change the whole vibe */
+  --bg-gradient-start: #f9fafe;
+  --bg-gradient-end:   #e0f4ff;
+  --card-bg:           #ffffff;
+  --card-shadow:       0 10px 30px rgba(0, 0, 0, 0.08);
+
+  --primary:           #3b82f6;   /* button / accent */
+  --primary-hover:     #2563eb;
+
+  --secondary:         #a855f7;   /* secondary button */
+  --secondary-hover:   #9333ea;
+
+  --tertiary:          #f59e0b;   /* tertiary button */
+  --tertiary-hover:    #d97706;
+
+  --danger:            #ef4444;   /* reset button */
+  --danger-hover:      #dc2626;
+
+  --text-heading:      #1e293b;
+  --text-body:         #475569;
+  --grid-stroke:       #d4d8e2;
+}
+
+html, body {
   margin: 0;
   padding: 0;
+  font-family: "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  color: var(--text-body);
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  min-height: 100vh;
 }
 
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.navbar {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  z-index: 999;
+}
+
+.nav-left {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.nav-right {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.nav-link {
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: var(--text-body);
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #cbd5e1; /* placeholder avatar */
+}
+
+/* =========================================================
+   MAIN APP CONTAINER
+   ========================================================= */
 .app-container {
-  max-width: 900px;
-  margin: 40px auto;
+  max-width: 1000px;
+  margin: 90px auto 40px; /* leave space for navbar */
   padding: 30px;
-  background-color: #1e2227; /* Even darker for the main card */
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Darker shadow */
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
 }
 
+/* Headings */
 .app-title {
   text-align: center;
-  color: #9bb3c7; /* Lighter heading */
-  margin-bottom: 40px;
-  font-size: 2.2em;
+  font-size: 2rem;
   font-weight: 700;
-  letter-spacing: -0.5px;
+  margin-bottom: 40px;
+  color: var(--text-heading);
 }
 
 h2 {
-  color: #9bb3c7; /* Consistent heading color */
-  font-size: 1.5em;
+  color: var(--text-heading);
+  font-size: 1.4rem;
   margin-bottom: 20px;
-  border-bottom: 2px solid #3a3a3a; /* Darker subtle border */
-  padding-bottom: 10px;
 }
 
-/* Section Cards */
+/* =========================================================
+   SECTION CARDS
+   ========================================================= */
 .section-card {
-  background-color: #2a3036; /* Darker section background */
-  border-radius: 10px;
+  background: var(--card-bg);
+  border-radius: 14px;
   padding: 25px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Adjusted shadow for dark */
-  border: 1px solid #444; /* Lighter border */
+  margin-bottom: 32px;
+  box-shadow: var(--card-shadow);
 }
 
-/* Stock Selection Grid */
+/* =========================================================
+   STOCK SELECTION
+   ========================================================= */
 .stocks-grid {
   display: flex;
   flex-wrap: wrap;
@@ -54,335 +130,229 @@ h2 {
 
 .stock-button {
   padding: 10px 18px;
-  border-radius: 25px;
-  border: 1px solid #555; /* Darker border */
-  background-color: #343a40; /* Darker button background */
-  color: #b0b0b0; /* Lighter text */
+  border-radius: 24px;
+  border: 1px solid #dbe0ea;
+  background: #f8f9fb;
+  color: var(--text-body);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   min-width: 80px;
-  text-align: center;
 }
 
 .stock-button:hover:not(:disabled) {
-  background-color: #454d54; /* Darker hover background */
-  border-color: #777; /* Lighter hover border */
+  background: #eef1f7;
   transform: translateY(-2px);
 }
 
 .stock-button.selected {
-  background-color: #2196F3; /* Brighter blue for selected */
+  background: var(--primary);
   color: #ffffff;
-  border-color: #1976D2;
-  box-shadow: 0 2px 5px rgba(33, 150, 243, 0.3);
+  border-color: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .stock-button:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
-  background-color: #343a40; /* Consistent disabled background */
-  color: #999;
 }
 
-/* Algorithm Options (Radio Buttons) */
+/* =========================================================
+   RADIO BUTTONS (ALGO OPTIONS)
+   ========================================================= */
 .algorithm-options {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
 }
 
 .radio-label {
   display: flex;
   align-items: center;
-  font-size: 1.1em;
-  color: #e0e0e0; /* Light text */
+  font-size: 1rem;
   cursor: pointer;
+  color: var(--text-body);
 }
 
-.radio-label input[type="radio"] {
+.radio-label input {
   appearance: none;
   width: 20px;
   height: 20px;
-  border: 2px solid #5cb85c; /* Greenish for contrast on dark */
+  border: 2px solid var(--primary);
   border-radius: 50%;
   margin-right: 10px;
   display: grid;
   place-content: center;
-  cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
-.radio-label input[type="radio"]::before {
+.radio-label input::before {
   content: "";
   width: 10px;
   height: 10px;
   border-radius: 50%;
   transform: scale(0);
-  transition: 120ms transform ease-in-out;
-  box-shadow: inset 1em 1em #5cb85c; /* Greenish fill */
+  background: var(--primary);
+  transition: transform 0.15s ease-in-out;
 }
 
-.radio-label input[type="radio"]:checked::before {
+.radio-label input:checked::before {
   transform: scale(1);
 }
 
-.radio-label input[type="radio"]:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  border-color: #777; /* Darker disabled border */
-}
-
-/* Epsilon Slider */
+/* =========================================================
+   EPSILON SLIDER
+   ========================================================= */
 .epsilon-slider {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #343a40; /* Darker background */
-  border-radius: 8px;
+  margin-top: 18px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-weight: 500;
-  color: #e0e0e0; /* Light text */
+  gap: 12px;
 }
 
 .epsilon-slider input[type="range"] {
-  flex-grow: 1;
-  margin: 0 15px;
-  height: 8px;
-  border-radius: 5px;
-  background: #555; /* Darker track */
-  outline: none;
-  -webkit-appearance: none;
+  flex: 1;
+  accent-color: var(--primary);
 }
 
-.epsilon-slider input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #2196F3; /* Blue thumb */
-  cursor: grab;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: background 0.2s ease-in-out;
-}
-
-.epsilon-slider input[type="range"]::-webkit-slider-thumb:active {
-  cursor: grabbing;
-}
-
-.epsilon-slider input[type="range"]:disabled::-webkit-slider-thumb {
-  background: #777; /* Darker disabled thumb */
-  cursor: not-allowed;
-}
-
-/* Action Buttons */
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
 .action-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 14px;
   justify-content: center;
 }
 
 .btn {
-  padding: 12px 25px;
+  padding: 12px 28px;
   border: none;
   border-radius: 8px;
-  font-size: 1.1em;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  transition: background 0.25s, transform 0.15s;
   min-width: 150px;
-  color: #ffffff; /* All buttons have white text */
 }
 
-.btn.primary { background-color: #3498db; }
-.btn.primary:hover:not(:disabled) { background-color: #2980b9; }
+.btn.primary   { background: var(--primary);   }
+.btn.secondary { background: var(--secondary); }
+.btn.tertiary  { background: var(--tertiary);  }
+.btn.reset     { background: var(--danger);    }
 
-.btn.secondary { background-color: #9b59b6; }
-.btn.secondary:hover:not(:disabled) { background-color: #8e44ad; }
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
 
-.btn.tertiary { background-color: #f39c12; }
-.btn.tertiary:hover:not(:disabled) { background-color: #e67e22; }
-
-.btn.reset { background-color: #e74c3c; }
-.btn.reset:hover:not(:disabled) { background-color: #c0392b; }
+.btn.primary:hover   { background: var(--primary-hover); }
+.btn.secondary:hover { background: var(--secondary-hover); }
+.btn.tertiary:hover  { background: var(--tertiary-hover);  }
+.btn.reset:hover     { background: var(--danger-hover);    }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
-/* Final Results Card */
+/* =========================================================
+   RESULT + LOG CARDS, TEXT
+   ========================================================= */
 .final-results-card {
-  background-color: #2a402d; /* Darker green background */
-  border-color: #4CAF50; /* Lighter border */
-  text-align: center;
+  background: #ecfdf5;          /* pastel green bg */
+  border-left: 6px solid #34d399;
 }
 
-.final-results-card h2 {
-  color: #a5d6a7; /* Lighter heading */
-  border-bottom: none;
-  margin-bottom: 10px;
-}
+.final-results-card h2 { margin-top: 0; }
 
-.final-results-card p {
-  font-size: 1.2em;
-  font-weight: 500;
-  color: #c8e6c9; /* Lighter text */
-}
+.history-chart-card { background: #f0f9ff; }
 
-/* History Chart Card */
-.history-chart-card {
-  background-color: #2e3b4e; /* Darker blue background */
-  border-color: #42a5f5; /* Lighter border */
-}
-
-.history-chart-card h2 {
-  color: #90caf9; /* Lighter heading */
-}
-
-.loading-message, .no-data-message {
+.loading-message,
+.no-data-message {
   text-align: center;
   font-style: italic;
-  color: #aaa; /* Lighter message color */
+  color: #64748b;
   padding: 20px;
 }
 
-/* Logs Card */
-.logs-card {
-  background-color: #2a3036; /* Darker logs background */
-  border-color: #444; /* Lighter border */
-}
+/* LOG LIST */
+.logs-card          { background: #f8fafc; }
+.logs-list          { list-style: none; padding: 0; margin: 0; max-height: 260px; overflow-y: auto; }
+.log-item           { padding: 12px 16px; border-bottom: 1px dashed #e2e8f0; font-size: 0.95rem; }
+.log-item:last-child{ border-bottom: none; }
+.log-step           { font-weight: 700; color: var(--primary); }
 
-.logs-card h2 {
-  color: #9bb3c7; /* Consistent heading color */
-}
+/* Scrollbar (light) */
+.logs-list::-webkit-scrollbar       { width: 8px; }
+.logs-list::-webkit-scrollbar-track { background: #f1f5f9; }
+.logs-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+.logs-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-.logs-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #444; /* Lighter border */
-  border-radius: 8px;
-  background-color: #2a3036; /* Consistent logs background */
-}
+/* =========================================================
+   RECHARTS – override strokes to fit light theme
+   ========================================================= */
+.recharts-cartesian-grid line { stroke: var(--grid-stroke); }
 
-.log-item {
-  padding: 12px 15px;
-  border-bottom: 1px dashed #3a3a3a; /* Darker separator */
-  font-size: 0.95em;
-  color: #c0c0c0; /* Lighter log text */
-}
-
-.log-item:last-child {
-  border-bottom: none;
-}
-
-.log-step {
-  font-weight: bold;
-  color: #64b5f6; /* Lighter blue for steps */
-}
-
-/* Scrollbar for logs list (adjusted for dark theme) */
-.logs-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.logs-list::-webkit-scrollbar-track {
-  background: #3a3a3a; /* Darker track */
-  border-radius: 10px;
-}
-
-.logs-list::-webkit-scrollbar-thumb {
-  background: #555; /* Darker thumb */
-  border-radius: 10px;
-}
-
-.logs-list::-webkit-scrollbar-thumb:hover {
-  background: #777; /* Even darker thumb on hover */
-}
-
-/* Recharts specific styling for dark theme (these are inline in JS, but for reference) */
-/*
-  CartesianGrid stroke: #555
-  XAxis, YAxis tick fill: #bbb
-  YAxis label fill: #bbb
-  Tooltip contentStyle backgroundColor: rgba(40,40,40,0.9)
-  Tooltip contentStyle border: 1px solid #666
-  Tooltip labelStyle color: #eee
-*/
-
-
-/* Responsive adjustments */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 @media (max-width: 768px) {
-  .app-container {
-    margin: 20px;
-    padding: 20px;
-  }
-
-  .app-title {
-    font-size: 1.8em;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn {
-    min-width: unset;
-  }
-}
-/* Add this to your App.css or a new Signup.css */
-
-.signup-container {
-  max-width: 400px;
-  margin: 4rem auto;
-  padding: 2rem;
-  background-color: #222;
-  color: #eee;
-  border-radius: 8px;
-  box-shadow: 0 0 10px #000;
+  .app-container { margin: 100px 16px 40px; padding: 22px; }
+  .app-title     { font-size: 1.7rem; }
+  .action-buttons { flex-direction: column; }
+  .btn { min-width: unset; width: 100%; }
 }
 
-.signup-form label {
-  display: block;
+/* ─── History Side Panel ───────────────────────────────────────────── */
+.side-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: -6px 0 18px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.side-panel.open {
+  transform: translateX(0);
+}
+
+.side-panel h3 {
+  margin-top: 0;
   margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #1e293b;
 }
 
-.signup-form input {
-  width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-  border-radius: 4px;
-  border: 1px solid #555;
-  background-color: #333;
-  color: #eee;
+.side-panel .history-item {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  color: #475569;
 }
 
-.error-message {
-  color: #ff6b6b;
-  margin-bottom: 1rem;
-}
-
-.btn.primary {
-  background-color: #4caf50;
+.side-panel .close-btn {
+  margin-top: auto;
+  align-self: flex-end;
+  background: #e2e8f0;
   border: none;
-  padding: 0.75rem 1.5rem;
-  color: white;
+  border-radius: 6px;
+  padding: 6px 14px;
   cursor: pointer;
-  border-radius: 4px;
-  font-weight: bold;
-  width: 100%;
-}
-
-.btn.primary:hover {
-  background-color: #45a049;
 }
