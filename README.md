@@ -5,7 +5,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Available Scripts
 
 In the project directory, you can run:
-
+export NODE_OPTIONS=--openssl-legacy-provider
 ### `npm start`
 
 Runs the app in the development mode.\
